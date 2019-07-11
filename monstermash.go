@@ -40,8 +40,10 @@ const (
 	SpaceAt = 5
 )
 
+
 func main() {
 	var verbose bool
+	flag.Usage = customUsage
 	flag.BoolVar(&verbose, "v", false, "enable verbose mode")
 	flag.Parse()
 
@@ -73,6 +75,12 @@ func main() {
 	for _, v := range s {
 		fmt.Printf("%s\n", v)
 	}
+}
+
+func customUsage() {
+	fmt.Fprintf(flag.CommandLine.Output(),
+		"Usage of %s: <filename>\n", os.Args[0])
+	flag.PrintDefaults()
 }
 
 func makePaperPasswords(data []byte, passwd []byte) ([]string, error) {
