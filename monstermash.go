@@ -29,13 +29,16 @@ import (
 	"io"
 	"log"
 	"os"
+	"strings"
 )
 
-const DefaultRounds int = 262144
-const FileBufferSize int = 512
-const PasswordCount int = 10
-const PasswordLength int = 20
-const SplitAt int = 5
+const (
+	DefaultRounds = 200000
+	FileBufferSize = 512
+	PasswordCount = 10
+	PasswordLength = 20
+	SpaceAt = 5
+)
 
 func main() {
 	var verbose bool
@@ -55,44 +58,65 @@ func main() {
 	}
 
 	// Get password from user.
-	passwd, err := doPassword()
+	passwd, err := getPassword()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	makePaperPasswords(data, passwd)
+	// Make passwords.
+	s, err := makePaperPasswords(data, passwd)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Print passwords.
+	for _, v := range s {
+		fmt.Printf("%s\n", v)
+	}
 }
 
 func makePaperPasswords(data []byte, passwd []byte) ([]string, error) {
+	// Calculate a SHA256 hash of data, using 64bits as a salt.
 	hash := sha256.Sum256(data)
 	salt := hash[:8]
-	ks := 32
+	keySize := 32
 	ivs := aes.BlockSize
-	dk := pbkdf2.Key(passwd, salt, DefaultRounds, ks+ivs, sha256.New)
-	block, err := aes.NewCipher(dk[:ks])
+
+	// Generate key and IV from password and salt.
+	dk := pbkdf2.Key(passwd, salt, DefaultRounds, keySize+ivs, sha256.New)
+	block, err := aes.NewCipher(dk[:keySize])
 	if err != nil {
 		return nil, err
 	}
-	bs := cipher.NewCBCEncrypter(block, dk[ks:])
+
+	// Encrypt data using AES256 in CBC mode.
+	bs := cipher.NewCBCEncrypter(block, dk[keySize:])
 	bs.CryptBlocks(data, data)
+
+	// Encode the ciphertext in base32.
 	coder := base32.StdEncoding.WithPadding(base32.NoPadding)
-	s := coder.EncodeToString(data)
+	b32 := coder.EncodeToString(data)
+
+	// Create an array of password strings.
+	var b strings.Builder
+	var s []string
 	for c := 0; c < PasswordCount; c++ {
-		for i := 0; i < SplitAt-1; i++ {
-			from := i*SplitAt + c*PasswordLength
-			to := from + SplitAt
-			fmt.Printf("%s", s[from:to])
-			if i == SplitAt-2 {
-				fmt.Printf("\n")
-			} else {
-				fmt.Printf(" ")
+		b.Reset()
+		for i := 0; i < SpaceAt-1; i++ {
+			from := i*SpaceAt + c*PasswordLength
+			to := from + SpaceAt
+			fmt.Fprintf(&b, "%s", b32[from:to])
+			if i != SpaceAt-2 {
+				fmt.Fprintf(&b, " ")
 			}
 		}
+		s = append(s, b.String())
 	}
-	return nil, nil
+
+	return s, nil
 }
 
-func doPassword() ([]byte, error) {
+func getPassword() ([]byte, error) {
 	s1, err := readPassword(os.Stdin, "enter password: ")
 	if err != nil {
 		return nil, err
