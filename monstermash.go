@@ -46,14 +46,19 @@ const (
 	PasswordCount  = 10
 	PasswordLength = 20
 	SpaceAt        = 5
+	Version        = "1.0"
 )
 
-var debug bool
+var Debug bool
 
 func main() {
 	flag.Usage = customUsage
-	flag.BoolVar(&debug, "d", false, "enable debug mode")
+	flag.BoolVar(&Debug, "d", false, "enable Debug mode")
 	flag.Parse()
+
+	if Debug == true {
+		log.Printf("%s v%s\n", os.Args[0], Version)
+	}
 
 	fileName := flag.Arg(0)
 	if fileName == "" {
@@ -133,7 +138,7 @@ func GetDataFromFile(filename string) (*MonsterMash, error) {
 	hash := hasher.Sum(nil)
 	mm.Salt = hash[:16]
 
-	if debug == true {
+	if Debug == true {
 		log.Println("salt:", hex.EncodeToString(mm.Salt))
 	}
 
@@ -153,7 +158,7 @@ func GetPassword() ([]byte, error) {
 		return nil, fmt.Errorf("password mismatch")
 	}
 
-	if debug == true {
+	if Debug == true {
 		log.Println("password:", string(s1))
 	}
 
@@ -172,7 +177,7 @@ func MakePasswords(mm *MonsterMash, passwd []byte) ([]string, error) {
 		return nil, err
 	}
 
-	if debug == true {
+	if Debug == true {
 		log.Println("key:", hex.EncodeToString(dk[:keySize]))
 		log.Println("iv:", hex.EncodeToString(dk[keySize:]))
 	}
