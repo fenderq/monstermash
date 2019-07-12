@@ -80,8 +80,8 @@ func main() {
 	}
 
 	// Print passwords.
-	for _, v := range s {
-		fmt.Printf("%s\n", v)
+	for i, v := range s {
+		fmt.Printf("%02d: %s\n", i+1, v)
 	}
 }
 
