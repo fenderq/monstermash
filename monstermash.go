@@ -33,9 +33,9 @@ import (
 	"strings"
 )
 
-type monsterMash struct {
-	data []byte
-	salt []byte
+type MonsterMash struct {
+	Data []byte
+	Salt []byte
 }
 
 const (
@@ -62,19 +62,19 @@ func main() {
 	}
 
 	// Get data from file.
-	data, err := getDataFromFile(fileName)
+	data, err := GetDataFromFile(fileName)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// Get password from user.
-	passwd, err := getPassword()
+	passwd, err := GetPassword()
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// Make passwords.
-	s, err := makePasswords(data, passwd)
+	s, err := MakePasswords(data, passwd)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -91,8 +91,8 @@ func customUsage() {
 	flag.PrintDefaults()
 }
 
-func getDataFromFile(filename string) (*monsterMash, error) {
-	var mm monsterMash
+func GetDataFromFile(filename string) (*MonsterMash, error) {
+	var mm MonsterMash
 
 	// Open our file.
 	file, err := os.Open(filename)
@@ -118,8 +118,8 @@ func getDataFromFile(filename string) (*monsterMash, error) {
 	}
 
 	// Read a block of plaintext from file.
-	mm.data = make([]byte, FileBlockSize)
-	if _, err := io.ReadFull(file, mm.data); err != nil {
+	mm.Data = make([]byte, FileBlockSize)
+	if _, err := io.ReadFull(file, mm.Data); err != nil {
 		return nil, err
 	}
 
@@ -131,16 +131,16 @@ func getDataFromFile(filename string) (*monsterMash, error) {
 
 	// Create a 128bit salt from the hash.
 	hash := hasher.Sum(nil)
-	mm.salt = hash[:16]
+	mm.Salt = hash[:16]
 
 	if debug == true {
-		log.Println("salt:", hex.EncodeToString(mm.salt))
+		log.Println("salt:", hex.EncodeToString(mm.Salt))
 	}
 
 	return &mm, nil
 }
 
-func getPassword() ([]byte, error) {
+func GetPassword() ([]byte, error) {
 	s1, err := readPassword(os.Stdin, "enter password: ")
 	if err != nil {
 		return nil, err
@@ -160,12 +160,12 @@ func getPassword() ([]byte, error) {
 	return s1, nil
 }
 
-func makePasswords(mm *monsterMash, passwd []byte) ([]string, error) {
+func MakePasswords(mm *MonsterMash, passwd []byte) ([]string, error) {
 	keySize := 32
 	ivSize := aes.BlockSize
 
 	// Generate key and IV from password and salt.
-	dk := pbkdf2.Key(passwd, mm.salt, DefaultRounds,
+	dk := pbkdf2.Key(passwd, mm.Salt, DefaultRounds,
 		keySize+ivSize, sha256.New)
 	block, err := aes.NewCipher(dk[:keySize])
 	if err != nil {
@@ -180,7 +180,7 @@ func makePasswords(mm *monsterMash, passwd []byte) ([]string, error) {
 	// Encrypt data using AES256 in CBC mode.
 	ciphertext := make([]byte, FileBlockSize)
 	bs := cipher.NewCBCEncrypter(block, dk[keySize:])
-	bs.CryptBlocks(ciphertext, mm.data)
+	bs.CryptBlocks(ciphertext, mm.Data)
 
 	// Encode the ciphertext in base32.
 	coder := base32.StdEncoding.WithPadding(base32.NoPadding)
