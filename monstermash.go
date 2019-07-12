@@ -53,7 +53,7 @@ var Debug bool
 
 func main() {
 	flag.Usage = customUsage
-	flag.BoolVar(&Debug, "d", false, "enable Debug mode")
+	flag.BoolVar(&Debug, "d", false, "enable debug mode")
 	flag.Parse()
 
 	if Debug == true {
