@@ -4,8 +4,8 @@ A program to generate a fixed password list from a file and password.
 ## Password Details:
 - 100bits of [password entropy](https://en.wikipedia.org/wiki/Password_strength) per password
 - Ten passwords are generated for easy [storage on paper](https://www.schneier.com/news/archives/2010/11/bruce_schneier_write.html)
-- Uses the [Base32](https://en.wikipedia.org/wiki/Base32) character set, which contains A-Z and 2-7
-- Uses 200,000 rounds of [PBKDF2](https://en.wikipedia.org/wiki/PBKDF2) with a 128bit salt to produce Key and IV for [AES-256](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard) cipher in [CBC mode](https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation#Cipher_Block_Chaining_(CBC))
+- Passwords contain the [Base32](https://en.wikipedia.org/wiki/Base32) character set, which consists of A-Z and 2-7
+- Generation uses 200,000 rounds of [PBKDF2](https://en.wikipedia.org/wiki/PBKDF2) with a 128bit salt to produce a Key and IV for the [AES-256](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard) cipher in [CBC mode](https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation#Cipher_Block_Chaining_(CBC))
 
 ## Example Output:
 
