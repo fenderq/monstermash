@@ -39,13 +39,13 @@ type monsterMash struct {
 }
 
 const (
-	DefaultRounds = 200000
-	FileBlockSize = 512
-	FileMinSize = 1024 * 64
-	FileMaxSize = 1024 * 1024 * 100
-	PasswordCount = 10
+	DefaultRounds  = 200000
+	FileBlockSize  = 512
+	FileMinSize    = 1024 * 64
+	FileMaxSize    = 1024 * 1024 * 100
+	PasswordCount  = 10
 	PasswordLength = 20
-	SpaceAt = 5
+	SpaceAt        = 5
 )
 
 var debug bool
