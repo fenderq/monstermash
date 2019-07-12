@@ -22,6 +22,7 @@ import (
 	"crypto/cipher"
 	"crypto/sha256"
 	"encoding/base32"
+	"encoding/hex"
 	"flag"
 	"fmt"
 	"golang.org/x/crypto/pbkdf2"
@@ -32,29 +33,36 @@ import (
 	"strings"
 )
 
+type monsterMash struct {
+	data []byte
+	salt []byte
+}
+
 const (
 	DefaultRounds = 200000
-	FileBufferSize = 512
+	FileBlockSize = 512
+	FileMinSize = 1024 * 64
+	FileMaxSize = 1024 * 1024 * 100
 	PasswordCount = 10
 	PasswordLength = 20
 	SpaceAt = 5
 )
 
+var debug bool
 
 func main() {
-	var verbose bool
 	flag.Usage = customUsage
-	flag.BoolVar(&verbose, "v", false, "enable verbose mode")
+	flag.BoolVar(&debug, "d", false, "enable debug mode")
 	flag.Parse()
 
-	filename := flag.Arg(0)
-	if filename == "" {
+	fileName := flag.Arg(0)
+	if fileName == "" {
 		flag.Usage()
 		os.Exit(1)
 	}
 
 	// Get data from file.
-	data, err := dataFromFile(filename, FileBufferSize)
+	data, err := getDataFromFile(fileName)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -66,7 +74,7 @@ func main() {
 	}
 
 	// Make passwords.
-	s, err := makePaperPasswords(data, passwd)
+	s, err := makePasswords(data, passwd)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -83,29 +91,102 @@ func customUsage() {
 	flag.PrintDefaults()
 }
 
-func makePaperPasswords(data []byte, passwd []byte) ([]string, error) {
-	// Calculate a SHA256 hash of data, using 64bits as a salt.
-	hash := sha256.Sum256(data)
-	salt := hash[:8]
+func getDataFromFile(filename string) (*monsterMash, error) {
+	var mm monsterMash
+
+	// Open our file.
+	file, err := os.Open(filename)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	// Validate file size.
+	fi, err := file.Stat()
+	if err != nil {
+		return nil, err
+	}
+	size := fi.Size()
+	if size < FileMinSize {
+		err = fmt.Errorf("file too small: %d of %d bytes",
+			size, FileMinSize)
+		return nil, err
+	} else if size > FileMaxSize {
+		err = fmt.Errorf("file too large: %d bytes (%d max)",
+			size, FileMaxSize)
+		return nil, err
+	}
+
+	// Read a block of plaintext from file.
+	mm.data = make([]byte, FileBlockSize)
+	if _, err := io.ReadFull(file, mm.data); err != nil {
+		return nil, err
+	}
+
+	// Hash the remaining file data.
+	hasher := sha256.New()
+	if _, err := io.Copy(hasher, file); err != nil {
+		return nil, err
+	}
+
+	// Create a 128bit salt from the hash.
+	hash := hasher.Sum(nil)
+	mm.salt = hash[:16]
+
+	if debug == true {
+		log.Println("salt:", hex.EncodeToString(mm.salt))
+	}
+
+	return &mm, nil
+}
+
+func getPassword() ([]byte, error) {
+	s1, err := readPassword(os.Stdin, "enter password: ")
+	if err != nil {
+		return nil, err
+	}
+	s2, err := readPassword(os.Stdin, "confirm password: ")
+	if err != nil {
+		return nil, err
+	}
+	if bytes.Equal(s1, s2) == false {
+		return nil, fmt.Errorf("password mismatch")
+	}
+
+	if debug == true {
+		log.Println("password:", string(s1))
+	}
+
+	return s1, nil
+}
+
+func makePasswords(mm *monsterMash, passwd []byte) ([]string, error) {
 	keySize := 32
-	ivs := aes.BlockSize
+	ivSize := aes.BlockSize
 
 	// Generate key and IV from password and salt.
-	dk := pbkdf2.Key(passwd, salt, DefaultRounds, keySize+ivs, sha256.New)
+	dk := pbkdf2.Key(passwd, mm.salt, DefaultRounds,
+		keySize+ivSize, sha256.New)
 	block, err := aes.NewCipher(dk[:keySize])
 	if err != nil {
 		return nil, err
 	}
 
+	if debug == true {
+		log.Println("key:", hex.EncodeToString(dk[:keySize]))
+		log.Println("iv:", hex.EncodeToString(dk[keySize:]))
+	}
+
 	// Encrypt data using AES256 in CBC mode.
+	ciphertext := make([]byte, FileBlockSize)
 	bs := cipher.NewCBCEncrypter(block, dk[keySize:])
-	bs.CryptBlocks(data, data)
+	bs.CryptBlocks(ciphertext, mm.data)
 
 	// Encode the ciphertext in base32.
 	coder := base32.StdEncoding.WithPadding(base32.NoPadding)
-	b32 := coder.EncodeToString(data)
+	b32 := coder.EncodeToString(ciphertext)
 
-	// Create an array of password strings.
+	// Create a slice of password strings.
 	var b strings.Builder
 	var s []string
 	for c := 0; c < PasswordCount; c++ {
@@ -124,21 +205,6 @@ func makePaperPasswords(data []byte, passwd []byte) ([]string, error) {
 	return s, nil
 }
 
-func getPassword() ([]byte, error) {
-	s1, err := readPassword(os.Stdin, "enter password: ")
-	if err != nil {
-		return nil, err
-	}
-	s2, err := readPassword(os.Stdin, "confirm password: ")
-	if err != nil {
-		return nil, err
-	}
-	if bytes.Equal(s1, s2) == false {
-		return nil, fmt.Errorf("password mismatch")
-	}
-	return s1, nil
-}
-
 func readPassword(f *os.File, prompt string) ([]byte, error) {
 	fd := int(f.Fd())
 	if terminal.IsTerminal(fd) == false {
@@ -148,23 +214,6 @@ func readPassword(f *os.File, prompt string) ([]byte, error) {
 	data, err := terminal.ReadPassword(fd)
 	fmt.Printf("\n")
 	if err != nil {
-		return nil, err
-	}
-	return data, nil
-}
-
-func dataFromFile(filename string, size int) ([]byte, error) {
-	file, err := os.Open(filename)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-	data := make([]byte, size)
-	n, err := io.ReadFull(file, data)
-	if err != nil {
-		if n != size {
-			err = fmt.Errorf("%s: %d of %d bytes", err, n, size)
-		}
 		return nil, err
 	}
 	return data, nil
