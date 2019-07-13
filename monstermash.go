@@ -182,7 +182,7 @@ func MakePasswords(mm *MonsterMash, passwd []byte) ([]string, error) {
 		log.Println("iv:", hex.EncodeToString(iv))
 	}
 
-	// Encrypt data using AES256 in CBC mode.
+	// Encrypt data using AES256 in CTR mode.
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
