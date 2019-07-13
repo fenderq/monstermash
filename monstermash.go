@@ -172,19 +172,22 @@ func MakePasswords(mm *MonsterMash, passwd []byte) ([]string, error) {
 	// Generate key and IV from password and salt.
 	dk := pbkdf2.Key(passwd, mm.Salt, DefaultRounds,
 		keySize+ivSize, sha256.New)
-	block, err := aes.NewCipher(dk[:keySize])
-	if err != nil {
-		return nil, err
-	}
+
+	key := dk[:keySize]
+	iv := dk[keySize:]
 
 	if Debug == true {
-		log.Println("key:", hex.EncodeToString(dk[:keySize]))
-		log.Println("iv:", hex.EncodeToString(dk[keySize:]))
+		log.Println("key:", hex.EncodeToString(key))
+		log.Println("iv:", hex.EncodeToString(iv))
 	}
 
 	// Encrypt data using AES256 in CBC mode.
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
 	ciphertext := make([]byte, FileBlockSize)
-	bs := cipher.NewCBCEncrypter(block, dk[keySize:])
+	bs := cipher.NewCBCEncrypter(block, iv)
 	bs.CryptBlocks(ciphertext, mm.Data)
 
 	// Encode the ciphertext in base32.
