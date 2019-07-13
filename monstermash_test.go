@@ -30,16 +30,16 @@ type testData struct {
 
 func TestRandFoo(t *testing.T) {
 	td := testData{"randfile", "foo", []string{
-		"3TP3A JORV7 5IIAY 3CKP3",
-		"6MLD2 HOTU7 CGQUY GAJ67",
-		"4BVXO BLDY7 G3XC6 5OCGM",
-		"DGUQF MSC23 H2VML 6BQG2",
-		"H6AQN JKSSP 3LGEU 6JANJ",
-		"EHR6D IGQ6A T6ADE 6PORU",
-		"FYXOS ITX2K VYS3S JX7VR",
-		"CNHVJ SDCIH WEF6Q R6G2V",
-		"2N6P6 LKIC7 6FEEP SZRXB",
-		"7MDBI 6TY6G EB2YV KZET6",
+		"W2FCO 3FGGQ QIVGJ R4O45",
+		"NJOWB OWQ7E 2V4IV FBZYX",
+		"GTS4Q 7YJ3M VQ7JR MGVEJ",
+		"7N7K4 U3RVO JP623 443TL",
+		"XOXOE TLBR6 MEAHZ DEVLH",
+		"WHEWO I6FAI V7RH7 DV2VP",
+		"GV7KT VA2ZK 65DDK 7Z2IF",
+		"H5VVL P6NTZ 3WX6R O3IE7",
+		"VT4NM VW6GF K4LDV MQVP6",
+		"UM7KQ VOXRN G6WEG 235OI",
 	},
 	}
 	if err := testItem(&td); err != nil {
@@ -49,16 +49,16 @@ func TestRandFoo(t *testing.T) {
 
 func TestRandBar(t *testing.T) {
 	td := testData{"randfile", "bar", []string{
-		"INJMS SAR3E MKIWR HFX3A",
-		"IMY5M UVDOQ GWEXS TUNGW",
-		"GMNJX IJKRP AFBSP ITAOS",
-		"PIPLD IRQQI EBOG2 HXA3Q",
-		"QOCN3 5TO2K 5RMCR UJIPO",
-		"FU7II 6RN4E SDR2Q RJMQD",
-		"6ET3P XLFAO FZ4WV EQ33Y",
-		"QSFO4 LUMPQ 4YXKA HC6HH",
-		"LFD76 C2U56 KDX7A UW6U7",
-		"STBHH GGTN4 KJYBO RVEBD",
+		"OMNI4 XDEAW RZ2OQ G42QE",
+		"BPAJA IJJLO PXG67 I6WKD",
+		"CYLE4 SQOQN SXFSD 275EO",
+		"7AANP JWSOL 2NT4M QEECK",
+		"4XZMB MVGN3 PZX3D 6NH77",
+		"IAO65 UFLFL 4UFLD 4UL7G",
+		"RBUIZ 4PCCW MJUFK 43R3N",
+		"MSJXG U552U 2MPSX YNA6F",
+		"NDGSK D6NX2 7MBWD 43CLB",
+		"6O7FO 4G2IQ 75YSU XJH5H",
 	},
 	}
 	if err := testItem(&td); err != nil {
@@ -68,16 +68,16 @@ func TestRandBar(t *testing.T) {
 
 func TestZeroFoo(t *testing.T) {
 	td := testData{"zerofile", "foo", []string{
-		"QIPW4 WK7T2 AZCQP 2QUGZ",
-		"SPPIJ XGQA3 RAUST WN2BO",
-		"WTS2G Z5GIZ VNECD H2BMN",
-		"UTBUD O54HH KUYW4 GFHFR",
-		"DPTOU ABMQA MRNUB PEWTF",
-		"Z6M3C Z677S XIR7M 4ESMP",
-		"RBQ2G 3MXDD FIRC7 ELIMC",
-		"AVGQJ 54ACY CJ4YX COWBS",
-		"5GBNO L4CNN VSCVH 3P7UB",
-		"AOMW4 R77AX ETA2K Z6ZXL",
+		"3NIDU GY4WE XWQYJ QPMRZ",
+		"JOS6E LGMR5 N5KIF IVWV5",
+		"CYY77 G4KLN ZLVDI VBWUC",
+		"PKE3K 4WYPY VOBY5 3GN22",
+		"43R7C BR2ZW XNUTX DDSE5",
+		"EZAP6 72DSV ARXDU CSLF5",
+		"QPTMA IBZVD GJ7PG J2BJN",
+		"4KDD4 GZR3O ELS7W B7LHT",
+		"RSLKU EOCQE R4XGN WAQQN",
+		"LQ2AG NJZBN 2CUOU DM6PK",
 	},
 	}
 	if err := testItem(&td); err != nil {
@@ -87,16 +87,16 @@ func TestZeroFoo(t *testing.T) {
 
 func TestZeroBar(t *testing.T) {
 	td := testData{"zerofile", "bar", []string{
-		"YGRXM KGIFK ZJE2Q XKTNU",
-		"MLQJR HRFHR I2ZXX 7G3KB",
-		"CUVDL RM2CF XY2QO MUXUM",
-		"5OLHA EFVON Y4C7R 7TSLI",
-		"54NLE PGOTX 4NT3Y 4FDDI",
-		"PPG4L H7K5V TCU7Z ZL7UO",
-		"KZ55J VYT27 RZSIK 35FDW",
-		"QISFE DRLDG ZMQIJ AF2ZD",
-		"VEA4Q LVFG2 UPCNL T2LCJ",
-		"2NRZO 3UOL5 BJDDU Z33K6",
+		"JGU7G NO6SI NHNK7 TS6PM",
+		"H5KMJ PRYFW I6HQ4 3WVYX",
+		"LVUKB CSBP6 RYVG4 ZAOTZ",
+		"XEO2H 4T6MY 6WXCH 7H5E4",
+		"643VC 4I335 EJ4YZ COG6U",
+		"64UTU TEFHS JJZOD UY2A2",
+		"L3FL5 Y56U4 ZMHOH JDKUM",
+		"DAN7A 6ILRO LMRC3 NE5IE",
+		"NZSIJ Z3RGH UGC5Y AR43K",
+		"TEMBZ U6OO5 3KIVY 5YCBB",
 	},
 	}
 	if err := testItem(&td); err != nil {
@@ -106,11 +106,11 @@ func TestZeroBar(t *testing.T) {
 
 func testItem(td *testData) error {
 	path := filepath.Join("files", td.filename)
-	data, err := GetDataFromFile(path)
+	salt, err := GetSaltFromFile(path)
 	if err != nil {
 		return err
 	}
-	s, err := MakePasswords(data, []byte(td.passwd))
+	s, err := MakePasswords(salt, []byte(td.passwd))
 	if err != nil {
 		return err
 	}
