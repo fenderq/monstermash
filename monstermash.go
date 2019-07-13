@@ -29,13 +29,13 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 	"io"
 	"log"
+	"math"
 	"os"
 	"strings"
 )
 
 const (
 	DefaultRounds  = 200000
-	FileBlockSize  = 128
 	FileMinSize    = 1024 * 64
 	FileMaxSize    = 1024 * 1024 * 100
 	PasswordCount  = 10
@@ -61,25 +61,21 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Get data from file.
 	salt, err := GetSaltFromFile(fileName)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// Get password from user.
 	passwd, err := GetPassword()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// Make passwords.
 	s, err := MakePasswords(salt, passwd)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// Print passwords.
 	for i, v := range s {
 		fmt.Printf("%02d: %s\n", i+1, v)
 	}
@@ -92,7 +88,6 @@ func customUsage() {
 }
 
 func GetSaltFromFile(filename string) ([]byte, error) {
-	// Open our file.
 	file, err := os.Open(filename)
 	if err != nil {
 		return nil, err
@@ -168,16 +163,19 @@ func MakePasswords(salt, passwd []byte) ([]string, error) {
 		log.Println("iv:", hex.EncodeToString(iv))
 	}
 
+	// Allocate enough bytes to produce desired base32 output.
+	dataSize := int(math.Ceil(PasswordCount * PasswordLength * 5.0 / 8.0))
+	data := make([]byte, dataSize)
+
 	// Use AES-256 in CTR mode as a CSPRNG.
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
 	}
-	data := make([]byte, FileBlockSize)
 	stream := cipher.NewCTR(block, iv)
 	stream.XORKeyStream(data, data)
 
-	// Encode the ciphertext in base32.
+	// Encode to base32.
 	coder := base32.StdEncoding.WithPadding(base32.NoPadding)
 	b32 := coder.EncodeToString(data)
 
