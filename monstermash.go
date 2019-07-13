@@ -40,7 +40,7 @@ type MonsterMash struct {
 
 const (
 	DefaultRounds  = 200000
-	FileBlockSize  = 512
+	FileBlockSize  = 128
 	FileMinSize    = 1024 * 64
 	FileMaxSize    = 1024 * 1024 * 100
 	PasswordCount  = 10
@@ -139,6 +139,7 @@ func GetDataFromFile(filename string) (*MonsterMash, error) {
 	mm.Salt = hash[:16]
 
 	if Debug == true {
+		log.Println("hash:", hex.EncodeToString(hash))
 		log.Println("salt:", hex.EncodeToString(mm.Salt))
 	}
 
@@ -186,13 +187,19 @@ func MakePasswords(mm *MonsterMash, passwd []byte) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	ciphertext := make([]byte, FileBlockSize)
-	bs := cipher.NewCBCEncrypter(block, iv)
-	bs.CryptBlocks(ciphertext, mm.Data)
+	ciphertext := make([]byte, len(mm.Data))
+	stream := cipher.NewCTR(block, iv)
+	stream.XORKeyStream(ciphertext, mm.Data)
 
 	// Encode the ciphertext in base32.
 	coder := base32.StdEncoding.WithPadding(base32.NoPadding)
 	b32 := coder.EncodeToString(ciphertext)
+
+	if Debug == true {
+		log.Println("plaintext:", hex.EncodeToString(mm.Data))
+		log.Println("ciphertext:", hex.EncodeToString(ciphertext))
+		log.Println("base32:", b32)
+	}
 
 	// Create a slice of password strings.
 	var b strings.Builder
