@@ -193,12 +193,13 @@ func MakePasswords(salt, passwd []byte) ([]string, error) {
 		to := from + PasswordLength
 		p := b32[from:to]
 		for i, v := range p {
-			_, err := b.WriteRune(v)
-			if err != nil {
+			if _, err := b.WriteRune(v); err != nil {
 				return nil, err
 			}
 			if i%SpaceAt == SpaceAt-1 && i != PasswordLength-1 {
-				b.WriteRune(' ')
+				if _, err := b.WriteRune(' '); err != nil {
+					return nil, err
+				}
 			}
 		}
 		s = append(s, b.String())
