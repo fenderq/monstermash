@@ -28,3 +28,6 @@ confirm password:
 09: RCFPD VEYNN C4ZDB 5RVW3
 10: HO6SU H4S3I KG466 WPWJT
 ```
+## More Information
+
+You can find more information on the _monstermash_ [wiki page](https://github.com/fenderq/monstermash/wiki).
