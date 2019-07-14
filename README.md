@@ -9,17 +9,20 @@ A program to generate a fixed password list from a file and master password.
 - Passwords consist of the [Base32](https://en.wikipedia.org/wiki/Base32) character set, A-Z 2-7
 - Ten passwords are generated for easy [storage on paper](https://www.schneier.com/news/archives/2010/11/bruce_schneier_write.html)
 
-## Example Output:
+## Example Usage:
 
 ```
-01: MLMLI 4E3OM ZGQB3 7N4RD
-02: Y3DRZ 7WUHN SWX7O X5BGD
-03: SW6PL GWUKB QL2H3 O7IH6
-04: EKAD6 LNN4I DWICK OEDE4
-05: 34254 DT554 WYMKA VTPOR
-06: LI54M 266CG SGNQP UASCC
-07: IHGRF BIQQ4 ZGDUY FXZ2I
-08: 6BQ7Q 25OVY QNW72 GLKWB
-09: L22HG YU25A V44NV WJM4W
-10: AGFFL KFIAB B43TO DUME2
+$ monstermash myfile                                                      
+enter password: 
+confirm password: 
+01: YLNF5 GHLMK 53PTF VLH2D
+02: 7YWOF QUYSJ BGTBW RWZQP
+03: 6HR6Y LSIGF 46SZH K3Z7W
+04: BEAQ6 Z3J4I LXIE2 TKVFN
+05: 7GMHI FQ6ID N564P FB3GD
+06: Y5HSO 3L2S7 ZCOR7 REWJ2
+07: QV3OS Y5AAJ BVBV5 FWOCB
+08: S2PV6 LHPBY AIWSA 5NE6O
+09: RCFPD VEYNN C4ZDB 5RVW3
+10: HO6SU H4S3I KG466 WPWJT
 ```
