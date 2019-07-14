@@ -1,5 +1,5 @@
 # monstermash
-A program to generate a fixed password list from a file and password.
+A program to generate a fixed password list from a file and master password.
 
 ## Password Details:
 - 100bits of [entropy](https://en.wikipedia.org/wiki/Password_strength) per password
