@@ -66,7 +66,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	passwd, err := GetPassword()
+	passwd, err := GetMasterPassword()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -127,7 +127,7 @@ func GetSaltFromFile(filename string) ([]byte, error) {
 	return salt, nil
 }
 
-func GetPassword() ([]byte, error) {
+func GetMasterPassword() ([]byte, error) {
 	s1, err := readPassword(os.Stdin, "enter password: ")
 	if err != nil {
 		return nil, err
