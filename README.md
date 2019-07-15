@@ -14,9 +14,9 @@ A program to generate a fixed password list from a file and master password.
 ## Example Usage:
 
 ```
-$ monstermash myfile                                                      
-enter password: 
-confirm password: 
+$ monstermash myfile
+enter password:
+confirm password:
 01: YLNF5 GHLMK 53PTF VLH2D
 02: 7YWOF QUYSJ BGTBW RWZQP
 03: 6HR6Y LSIGF 46SZH K3Z7W
