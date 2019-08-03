@@ -17,6 +17,7 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
@@ -45,10 +46,12 @@ const (
 )
 
 var Debug bool
+var passwordFile string
 
 func main() {
 	flag.Usage = customUsage
 	flag.BoolVar(&Debug, "d", false, "enable debug mode")
+	flag.StringVar(&passwordFile, "f", "", "password file")
 	flag.Parse()
 
 	if Debug == true {
@@ -66,9 +69,17 @@ func main() {
 		log.Fatal(err)
 	}
 
-	passwd, err := GetMasterPassword()
-	if err != nil {
-		log.Fatal(err)
+	var passwd []byte
+	if passwordFile != "" {
+		passwd, err = readPasswordFromFile(passwordFile)
+		if err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		passwd, err = GetMasterPassword()
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	s, err := MakePasswords(salt, passwd)
@@ -128,11 +139,11 @@ func GetSaltFromFile(filename string) ([]byte, error) {
 }
 
 func GetMasterPassword() ([]byte, error) {
-	s1, err := readPassword(os.Stdin, "enter password: ")
+	s1, err := readPasswordFromUser(os.Stdin, "enter password: ")
 	if err != nil {
 		return nil, err
 	}
-	s2, err := readPassword(os.Stdin, "confirm password: ")
+	s2, err := readPasswordFromUser(os.Stdin, "confirm password: ")
 	if err != nil {
 		return nil, err
 	}
@@ -208,7 +219,7 @@ func MakePasswords(salt, passwd []byte) ([]string, error) {
 	return s, nil
 }
 
-func readPassword(f *os.File, prompt string) ([]byte, error) {
+func readPasswordFromUser(f *os.File, prompt string) ([]byte, error) {
 	fd := int(f.Fd())
 	if terminal.IsTerminal(fd) == false {
 		return nil, fmt.Errorf("invalid terminal")
@@ -220,4 +231,22 @@ func readPassword(f *os.File, prompt string) ([]byte, error) {
 		return nil, err
 	}
 	return data, nil
+}
+
+func readPasswordFromFile(fname string) ([]byte, error) {
+	var line string
+	f, err := os.Open(fname)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		line = scanner.Text()
+		break
+	}
+	if Debug == true {
+		log.Println("password:", string(line))
+	}
+	return []byte(line), nil
 }
