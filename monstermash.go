@@ -42,7 +42,7 @@ const (
 	PasswordCount  = 10
 	PasswordLength = 20
 	SpaceAt        = 5
-	Version        = "1.4"
+	Version        = "1.3"
 )
 
 var Debug bool
