@@ -49,7 +49,7 @@ func main() {
 	var passwordFile string
 
 	flag.Usage = customUsage
-	flag.BoolVar(&Debug, "d", false, "enable debug mode")
+	flag.BoolVar(&Debug, "debug", false, "enable debug mode")
 	flag.StringVar(&passwordFile, "p", "", "password file")
 	flag.Parse()
 
