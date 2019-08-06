@@ -17,8 +17,6 @@
 package main
 
 import (
-	"bufio"
-	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/sha256"
@@ -27,7 +25,6 @@ import (
 	"flag"
 	"fmt"
 	"golang.org/x/crypto/pbkdf2"
-	"golang.org/x/crypto/ssh/terminal"
 	"io"
 	"log"
 	"math"
@@ -46,37 +43,38 @@ const (
 )
 
 var Debug bool
-var passwordFile string
 
 func main() {
+	var passwd []byte
+	var passwordFile string
+
 	flag.Usage = customUsage
 	flag.BoolVar(&Debug, "d", false, "enable debug mode")
-	flag.StringVar(&passwordFile, "f", "", "password file")
+	flag.StringVar(&passwordFile, "p", "", "password file")
 	flag.Parse()
 
 	if Debug == true {
 		log.Printf("%s v%s\n", os.Args[0], Version)
 	}
 
-	fileName := flag.Arg(0)
-	if fileName == "" {
+	if flag.NArg() != 1 {
 		flag.Usage()
 		os.Exit(1)
 	}
 
+	fileName := flag.Arg(0)
 	salt, err := GetSaltFromFile(fileName)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	var passwd []byte
-	if passwordFile != "" {
-		passwd, err = readPasswordFromFile(passwordFile)
+	if passwordFile == "" {
+		passwd, err = GetPasswordFromUser()
 		if err != nil {
 			log.Fatal(err)
 		}
 	} else {
-		passwd, err = GetMasterPassword()
+		passwd, err = GetPasswordFromFile(passwordFile)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -138,26 +136,6 @@ func GetSaltFromFile(filename string) ([]byte, error) {
 	return salt, nil
 }
 
-func GetMasterPassword() ([]byte, error) {
-	s1, err := readPasswordFromUser(os.Stdin, "enter password: ")
-	if err != nil {
-		return nil, err
-	}
-	s2, err := readPasswordFromUser(os.Stdin, "confirm password: ")
-	if err != nil {
-		return nil, err
-	}
-	if bytes.Equal(s1, s2) == false {
-		return nil, fmt.Errorf("password mismatch")
-	}
-
-	if Debug == true {
-		log.Println("password:", string(s1))
-	}
-
-	return s1, nil
-}
-
 func MakePasswords(salt, passwd []byte) ([]string, error) {
 	keySize := 32
 	ivSize := aes.BlockSize
@@ -217,36 +195,4 @@ func MakePasswords(salt, passwd []byte) ([]string, error) {
 	}
 
 	return s, nil
-}
-
-func readPasswordFromUser(f *os.File, prompt string) ([]byte, error) {
-	fd := int(f.Fd())
-	if terminal.IsTerminal(fd) == false {
-		return nil, fmt.Errorf("invalid terminal")
-	}
-	fmt.Printf("%s", prompt)
-	data, err := terminal.ReadPassword(fd)
-	fmt.Printf("\n")
-	if err != nil {
-		return nil, err
-	}
-	return data, nil
-}
-
-func readPasswordFromFile(fname string) ([]byte, error) {
-	var line string
-	f, err := os.Open(fname)
-	if err != nil {
-		return nil, err
-	}
-	defer f.Close()
-	scanner := bufio.NewScanner(f)
-	for scanner.Scan() {
-		line = scanner.Text()
-		break
-	}
-	if Debug == true {
-		log.Println("password:", string(line))
-	}
-	return []byte(line), nil
 }
