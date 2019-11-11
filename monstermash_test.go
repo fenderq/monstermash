@@ -110,7 +110,8 @@ func testItem(td *testData) error {
 	if err != nil {
 		return err
 	}
-	s, err := MakePasswords(salt, []byte(td.passwd))
+	count := len(td.results)
+	s, err := MakePasswords(salt, []byte(td.passwd), count)
 	if err != nil {
 		return err
 	}

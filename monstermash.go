@@ -33,10 +33,10 @@ import (
 )
 
 const (
+	DefaultCount   = 10
 	DefaultRounds  = 200000
 	FileMinSize    = 1024 * 64
-	FileMaxSize    = 1024 * 1024 * 100
-	PasswordCount  = 10
+	FileMaxSize    = 1024 * 1024 * 32
 	PasswordLength = 20
 	SpaceAt        = 5
 	Version        = "1.3"
@@ -47,10 +47,12 @@ var Debug bool
 func main() {
 	var passwd []byte
 	var passwordFile string
+	var passwordCount int
 
 	flag.Usage = customUsage
 	flag.BoolVar(&Debug, "debug", false, "enable debug mode")
 	flag.StringVar(&passwordFile, "p", "", "password file")
+	flag.IntVar(&passwordCount, "n", DefaultCount, "number of passwords")
 	flag.Parse()
 
 	if Debug == true {
@@ -80,7 +82,7 @@ func main() {
 		}
 	}
 
-	s, err := MakePasswords(salt, passwd)
+	s, err := MakePasswords(salt, passwd, passwordCount)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -136,7 +138,7 @@ func GetSaltFromFile(filename string) ([]byte, error) {
 	return salt, nil
 }
 
-func MakePasswords(salt, passwd []byte) ([]string, error) {
+func MakePasswords(salt, passwd []byte, count int) ([]string, error) {
 	keySize := 32
 	ivSize := aes.BlockSize
 
@@ -153,7 +155,8 @@ func MakePasswords(salt, passwd []byte) ([]string, error) {
 	}
 
 	// Allocate enough bytes to produce desired base32 output.
-	dataSize := int(math.Ceil(PasswordCount * PasswordLength * 5.0 / 8.0))
+	numf := float64(count)
+	dataSize := int(math.Ceil(numf * PasswordLength * 5.0 / 8.0))
 	data := make([]byte, dataSize)
 
 	// Use AES-256 in CTR mode as a CSPRNG.
@@ -176,7 +179,7 @@ func MakePasswords(salt, passwd []byte) ([]string, error) {
 	// Create a slice of password strings.
 	var b strings.Builder
 	var s []string
-	for c := 0; c < PasswordCount; c++ {
+	for c := 0; c < count; c++ {
 		b.Reset()
 		from := c * PasswordLength
 		to := from + PasswordLength
