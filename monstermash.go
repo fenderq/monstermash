@@ -39,7 +39,7 @@ const (
 	FileMaxSize    = 1024 * 1024 * 32
 	PasswordLength = 20
 	SpaceAt        = 5
-	Version        = "1.3"
+	Version        = "1.4"
 )
 
 var Debug bool
